@@ -1,0 +1,47 @@
+{
+  "name": "angular-meteor-auth",
+  "main": "./dist/angular-meteor-auth.bundle.min.js",
+  "version": "0.1.0",
+  "homepage": "https://github.com/Urigo/angular-meteor-auth",
+  "authors": [
+    "Uri Goldshtein <uri.goldshtein@gmail.com>"
+  ],
+  "description": "Angular-Meteor authentication module",
+  "keywords": [
+    "AngularJS",
+    "Meteor",
+    "angular-meteor-auth",
+    "angular-meteor",
+    "angular",
+    "auth"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    ".build.urigo:angular",
+    ".coverage",
+    ".docs",
+    ".meteor",
+    ".npm",
+    "plugin",
+    "test",
+    ".coveralls.yml",
+    ".editorconfig",
+    ".travis.yml",
+    ".versions",
+    "package.js",
+    "package.json",
+    "versions.json",
+    "run_tests.sh",
+    "run_tests_ci.sh"
+  ],
+  "dependencies": {
+    "meteor-client-side": "~0.2.2",
+    "angular": "1.4.4",
+    "angular-meteor": "1.4.0"
+  }
+}
