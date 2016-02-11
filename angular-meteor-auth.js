@@ -26,10 +26,10 @@ angular.module('angular-meteor.auth', [
 
   function $$Auth(vm = this) {
     // reset auth properties
-    this.$autorun(() => {
+    this.autorun(() => {
       vm.currentUser = Accounts.user();
       vm.currentUserId = Accounts.userId();
-      vm.isLoggingIn = Accounts.loggingIn();;
+      vm.isLoggingIn = Accounts.loggingIn();
     });
   }
 
@@ -38,15 +38,15 @@ angular.module('angular-meteor.auth', [
   // once login has failed or user is not valid, otherwise it will be resolved with the current
   // user
   $$Auth.$awaitUser = function(validate) {
-    validate = validate ? this.$$bind(validate) : angular.noop;
+    validate = validate ? this.$bindToContext(validate) : function() {return true};
 
     if (!_.isFunction(validate))
       throw Error('argument 1 must be a function');
 
     let deferred = this.$$defer();
 
-    let computation = this.$autorun((computation) => {
-      if (this.$reactivate('isLoggingIn')) return;
+    let computation = this.autorun((computation) => {
+      if (this.getReactively('isLoggingIn')) return;
       // Stop computation once a user has logged in
       computation.stop();
 
