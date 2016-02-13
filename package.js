@@ -1,7 +1,7 @@
 Package.describe({
   name: "angular-meteor-auth",
   summary: "Angular-Meteor authentication module",
-  version: "0.1.0",
+  version: "0.2.0-beta.1",
   git: "https://github.com/Urigo/angular-meteor.git",
   documentation: null
 });
@@ -14,7 +14,7 @@ Package.onUse(function (api) {
   api.use('reactive-var');
   api.use('accounts-base');
   api.use('angular-meteor-data@0.0.9');
-  api.use('angular:angular@1.4.7', 'client');
+  api.use('angular:angular@1.4.8', 'client');
 
   // Files to load in Client only.
   api.add_files([
@@ -31,6 +31,7 @@ Package.onTest(function(api) {
   api.use('angular-meteor-auth');
   api.use('ecmascript');
 
+  /*
   // Load local version of angular-meteor, so modifications would be available
   api.addFiles([
     '../angular-meteor/packages/angular-meteor-data/modules/router.js',
@@ -42,6 +43,7 @@ Package.onTest(function(api) {
     '../angular-meteor/packages/angular-meteor-data/modules/reactive.js',
     '../angular-meteor/packages/angular-meteor-data/angular-meteor.js'
   ], 'client');
+  */
 
   api.addFiles([
     'tests/mocks.js',

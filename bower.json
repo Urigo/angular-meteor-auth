@@ -1,7 +1,7 @@
 {
   "name": "angular-meteor-auth",
   "main": "./dist/angular-meteor-auth.bundle.min.js",
-  "version": "0.1.0",
+  "version": "0.2.0-beta.1",
   "homepage": "https://github.com/Urigo/angular-meteor-auth",
   "authors": [
     "Uri Goldshtein <uri.goldshtein@gmail.com>"
