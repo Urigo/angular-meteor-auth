@@ -1,85 +1,101 @@
 angular.module('angular-meteor.auth', [
-  'angular-meteor.mixer',
-  'angular-meteor.core',
-  'angular-meteor.view-model',
-  'angular-meteor.reactive'
+  'angular-meteor'
 ])
+.service('$auth', [
+  '$rootScope',
+  '$q',
 
+  function($rootScope, $q) {
+    if (!Package['accounts-base'])
+      throw Error(
+        'Oops, looks like Accounts-base package is missing!' +
+        'Please add it by running: meteor add accounts-base'
+      );
 
-/*
-  A mixin which provides us with authentication related methods and properties.
-  This mixin comes in a seperate package called `angular-meteor-auth`. Note that `accounts-base`
-  package needs to be installed in order for this module to work, otherwise an error will be thrown.
- */
-.service('$$Auth', function() {
-  const Accounts = (Package['accounts-base'] || {}).Accounts;
+    this.waitForUser = () => {
+      let deferred = $q.defer();
 
-  if (!Accounts) throw Error(
-    '`angular-meteor.auth` module requires `accounts-base` package, ' +
-    'please run `meteor add accounts-base` before use'
-  );
+      let promise = deferred.promise.finally(() => {
+          this._throttledDigest();
+      });
 
-  const errors = {
-    required: 'AUTH_REQUIRED',
-    forbidden: 'FORBIDDEN'
-  };
+      var c = Meteor.autorun((c) => {
+        if (Meteor.loggingIn()) return;
 
-  function $$Auth(vm = this) {
-    // reset auth properties
-    this.autorun(() => {
-      vm.currentUser = Accounts.user();
-      vm.currentUserId = Accounts.userId();
-      vm.isLoggingIn = Accounts.loggingIn();
-    });
-  }
+        c.stop();
+        deferred.resolve(Meteor.user());
+        this._throttledDigest();
+      });
 
-  // Waits for user to finish the login process. Gets an optional validation function which
-  // will validate if the current user is valid or not. Returns a promise which will be rejected
-  // once login has failed or user is not valid, otherwise it will be resolved with the current
-  // user
-  $$Auth.$awaitUser = function(validate) {
-    validate = validate ? this.$bindToContext(validate) : function() {return true};
+      promise.stop = c.stop.bind(c);
+      return promise;
+    };
 
-    if (!_.isFunction(validate))
-      throw Error('argument 1 must be a function');
+    this.requireUser = (c) => {
+      let waiting = this.waitForUser();
 
-    let deferred = this.$$defer();
+      let promise = waiting.then((currentUser) => {
+        if (currentUser)
+          return $q.resolve(currentUser);
 
-    let computation = this.autorun((computation) => {
-      if (this.getReactively('isLoggingIn')) return;
-      // Stop computation once a user has logged in
-      computation.stop();
+        return $q.reject('AUTH_REQUIRED');
+      });
 
-      let user = this.$$vm.currentUser;
-      if (!user) return deferred.reject(errors.required);
+      promise.stop = waiting.stop;
+      return promise;
+    };
+
+    this.requireValidUser = (validate = angular.noop) => {
+      if (!_.isFunction(validate))
+        throw Error('argument 1 must be a function');
+
+      let requiring = this.requireUser();
+
+      let promise = requiring.then((user) => {
+          if (user === 'AUTH_REQUIRED')
+      return $q.reject(user);
 
       let isValid = validate(user);
-      // Resolve the promise if validation has passed
-      if (isValid == true) return deferred.resolve(user);
 
-      let error;
+      if (isValid === true)
+        return $q.resolve(user);
 
-      if (_.isString(isValid) || isValid instanceof Error)
-        error = isValid;
-      else
-        error = errors.forbidden;
-
-      deferred.reject(error);
+      isValid = _.isString(isValid) ? isValid : "FORBIDDEN";
+      return $q.reject(isValid);
     });
 
-    let promise = deferred.promise;
-    promise.stop = computation.stop.bind(computation);
-    return promise;
-  };
+      promise.stop = requiring.stop;
+      return promise;
+    };
 
-  return $$Auth;
-})
+    this.getUserInfo = () => {
+      return {
+        currentUser: Meteor.user(),
+        currentUserId: Meteor.userId(),
+        loggingIn: Meteor.loggingIn()
+      };
+    };
+
+    this._throttledDigest = function() {
+      let isDigestable =
+        !$rootScope.$$destroyed &&
+        !$rootScope.$$phase;
+
+      if (isDigestable) this.$rootScope();
+    };
+  }])
 
 
 .run([
-  '$Mixer',
-  '$$Auth',
+  '$rootScope',
+  '$auth',
+  '$reactive',
 
-function($Mixer, $$Auth) {
-  $Mixer.mixin($$Auth);
-}]);
+  function($rootScope, $auth, Reactive) {
+    Tracker.autorun(() => {
+      let scopeProto = Object.getPrototypeOf($rootScope);
+    let userInfo = $auth.getUserInfo();
+    _.extend(scopeProto, { $auth: userInfo });
+    _.extend(Reactive, { auth: userInfo });
+  });
+  }]);
