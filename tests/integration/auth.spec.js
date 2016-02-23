@@ -4,9 +4,11 @@ describe('angular-meteor.auth', function() {
 
   var Accounts = Package['accounts-base'].Accounts;
   var $rootScope;
+  var $auth;
 
-  beforeEach(angular.mock.inject(function(_$rootScope_) {
+  beforeEach(angular.mock.inject(function(_$rootScope_, _$auth_) {
     $rootScope = _$rootScope_;
+    $auth = _$auth_;
   }));
 
   describe('$$Auth', function() {
@@ -176,6 +178,19 @@ describe('angular-meteor.auth', function() {
         var promise = scope.$awaitUser();
         expect(Tracker.Computation.prototype.stop).toHaveBeenCalled();
         promise.stop();
+      });
+    });
+
+    describe('$auth', function() {
+      describe('awaitUser', function() {
+        it('should call $$Auth.awaitUser() with $rootScope as context', function() {
+          var awaitUser = spyOn($rootScope, '$awaitUser').and.returnValue('result');
+
+          $auth.awaitUser(1, 2, 3);
+          expect(awaitUser).toHaveBeenCalled();
+          expect(awaitUser.calls.mostRecent().args).toEqual([1, 2, 3]);
+          expect(awaitUser.calls.mostRecent().returnValue).toEqual('result');
+        });
       });
     });
   });

@@ -11,7 +11,7 @@ angular.module('angular-meteor.auth', [
   This mixin comes in a seperate package called `angular-meteor-auth`. Note that `accounts-base`
   package needs to be installed in order for this module to work, otherwise an error will be thrown.
  */
-.service('$$Auth', function() {
+.factory('$$Auth', function() {
   const Accounts = (Package['accounts-base'] || {}).Accounts;
 
   if (!Accounts) throw Error(
@@ -74,6 +74,21 @@ angular.module('angular-meteor.auth', [
 
   return $$Auth;
 })
+
+
+/*
+  External service for syntaxic sugare.
+  Originally created as UI-router's resolve handler.
+ */
+.service('$auth', [
+  '$rootScope',
+  '$$Auth',
+
+function($rootScope, $$Auth) {
+  this.awaitUser = (...args) => {
+    return $rootScope.$awaitUser(...args);
+  };
+}])
 
 
 .run([
