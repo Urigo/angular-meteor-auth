@@ -81,7 +81,7 @@ angular.module('angular-meteor.auth', [
         !$rootScope.$$destroyed &&
         !$rootScope.$$phase;
 
-      if (isDigestable) this.$rootScope();
+      if (isDigestable) $rootScope.$digest();
     };
   }])
 
