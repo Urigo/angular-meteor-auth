@@ -181,15 +181,89 @@ describe('angular-meteor.auth', function() {
       });
     });
 
-    describe('$auth', function() {
-      describe('awaitUser', function() {
-        it('should call $$Auth.awaitUser() with $rootScope as context', function() {
-          var awaitUser = spyOn($rootScope, '$awaitUser').and.returnValue('result');
+    describe('$waitForUser()', function() {
+      var scope;
 
-          $auth.awaitUser(1, 2, 3);
-          expect(awaitUser).toHaveBeenCalled();
-          expect(awaitUser.calls.mostRecent().args).toEqual([1, 2, 3]);
-          expect(awaitUser.calls.mostRecent().returnValue).toEqual('result');
+      beforeEach(function() {
+        scope = $rootScope.$new();
+        spyOn(Tracker.Computation.prototype, 'stop').and.callThrough();
+      });
+
+      afterEach(function() {
+        scope.$destroy();
+      });
+
+      it('should call $awaitUser() and ignore validation function', function(done) {
+        Accounts.login('tempUser', function() {
+          var spy = jasmine.createSpy().and.returnValue(false);
+          scope.$waitForUser(spy).then(done);
+          scope.$$throttledDigest();
+        });
+      });
+
+      it('should call $awaitUser() and ignore error', function(done) {
+        scope.$waitForUser().catch(done).finally(done);
+        scope.$$throttledDigest();
+      });
+    });
+
+    describe('$requireUser()', function() {
+      var scope;
+
+      beforeEach(function() {
+        scope = $rootScope.$new();
+        spyOn(Tracker.Computation.prototype, 'stop').and.callThrough();
+      });
+
+      afterEach(function() {
+        scope.$destroy();
+      });
+
+      it('should call $awaitUser() and ignore validation function', function(done) {
+        Accounts.login('tempUser', function() {
+          var spy = jasmine.createSpy().and.returnValue(false);
+          scope.$waitForUser(spy).then(done);
+          scope.$$throttledDigest();
+        });
+      });
+    });
+
+    describe('$requireValidUser()', function() {
+      var scope;
+
+      beforeEach(function() {
+        scope = $rootScope.$new();
+        spyOn(Tracker.Computation.prototype, 'stop').and.callThrough();
+      });
+
+      afterEach(function() {
+        scope.$destroy();
+      });
+
+      it('should call $awaitUser() as is', function() {
+        var handler = spyOn(scope, '$awaitUser').and.returnValue('result');
+
+        scope.$requireValidUser(1, 2, 3);
+        expect(handler).toHaveBeenCalled();
+        expect(handler.calls.mostRecent().args).toEqual([1, 2, 3]);
+        expect(handler.calls.mostRecent().returnValue).toEqual('result');
+      });
+    });
+  });
+
+  describe('$auth', function() {
+    ['$waitForUser', '$requireUser', '$requireValidUser', '$awaitUser']
+    .forEach(function(methodName) {
+      var stripped = methodName.substr(1);
+
+      describe(stripped, function() {
+        it('should call $$Auth.' + methodName + '() with $rootScope as context', function() {
+          var handler = spyOn($rootScope, methodName).and.returnValue('result');
+
+          $auth[stripped](1, 2, 3);
+          expect(handler).toHaveBeenCalled();
+          expect(handler.calls.mostRecent().args).toEqual([1, 2, 3]);
+          expect(handler.calls.mostRecent().returnValue).toEqual('result');
         });
       });
     });

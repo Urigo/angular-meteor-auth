@@ -72,12 +72,32 @@ angular.module('angular-meteor.auth', [
     return promise;
   };
 
+  // API v0.2.0
+  // Aliases with small modificatons
+
+  // No validation
+  // Silent error
+  $$Auth.$waitForUser = function() {
+    // Silent error
+    return this.$awaitUser().catch();
+  };
+
+  // No validation
+  $$Auth.$requireUser = function() {
+    return this.$awaitUser();
+  };
+
+  // Full functionality
+  $$Auth.$requireValidUser = function(...args) {
+    return this.$awaitUser(...args);
+  };
+
   return $$Auth;
 })
 
 
 /*
-  External service for syntaxic sugare.
+  External service for syntactic sugare.
   Originally created as UI-router's resolve handler.
  */
 .service('$auth', [
@@ -85,9 +105,14 @@ angular.module('angular-meteor.auth', [
   '$$Auth',
 
 function($rootScope, $$Auth) {
-  this.awaitUser = (...args) => {
-    return $rootScope.$awaitUser(...args);
-  };
+  // Note that services are initialized once we call them which means that the mixin
+  // will be available by then
+  _.keys($$Auth).forEach((k) => {
+    let v = $$Auth[k];
+    let stripped = k.substr(1);
+    // Not using bind() so it would be testable
+    this[stripped] = (...args) => $rootScope[k](...args);
+  });
 }])
 
 
