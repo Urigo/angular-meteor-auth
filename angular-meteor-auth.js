@@ -11,7 +11,7 @@ angular.module('angular-meteor.auth', [
   This mixin comes in a seperate package called `angular-meteor-auth`. Note that `accounts-base`
   package needs to be installed in order for this module to work, otherwise an error will be thrown.
  */
-.service('$$Auth', function() {
+.factory('$$Auth', function() {
   const Accounts = (Package['accounts-base'] || {}).Accounts;
 
   if (!Accounts) throw Error(
@@ -72,8 +72,48 @@ angular.module('angular-meteor.auth', [
     return promise;
   };
 
+  // API v0.2.0
+  // Aliases with small modificatons
+
+  // No validation
+  // Silent error
+  $$Auth.$waitForUser = function() {
+    // Silent error
+    return this.$awaitUser().catch();
+  };
+
+  // No validation
+  $$Auth.$requireUser = function() {
+    return this.$awaitUser();
+  };
+
+  // Full functionality
+  $$Auth.$requireValidUser = function(...args) {
+    return this.$awaitUser(...args);
+  };
+
   return $$Auth;
 })
+
+
+/*
+  External service for syntactic sugare.
+  Originally created as UI-router's resolve handler.
+ */
+.service('$auth', [
+  '$rootScope',
+  '$$Auth',
+
+function($rootScope, $$Auth) {
+  // Note that services are initialized once we call them which means that the mixin
+  // will be available by then
+  _.keys($$Auth).forEach((k) => {
+    let v = $$Auth[k];
+    let stripped = k.substr(1);
+    // Not using bind() so it would be testable
+    this[stripped] = (...args) => $rootScope[k](...args);
+  });
+}])
 
 
 .run([
