@@ -45,12 +45,12 @@ angular.module('angular-meteor.auth', [
 
     let deferred = this.$$defer();
 
-    let computation = this.autorun((computation) => {
+    let computation = Meteor.autorun((computation) => {
       if (this.getReactively('isLoggingIn')) return;
       // Stop computation once a user has logged in
       computation.stop();
 
-      let user = this.$$vm.currentUser;
+      let user = this.currentUser;
       if (!user) return deferred.reject(errors.required);
 
       let isValid = validate(user);
