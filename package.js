@@ -31,22 +31,23 @@ Package.onTest(function(api) {
   api.use('angular-meteor-auth');
   api.use('ecmascript');
 
-  /* TODO: Modify to match angular-meteor-data@0.3.0-beta.1 modules
-  // Load local version of angular-meteor, so modifications would be available
-  api.addFiles([
-    '../angular-meteor/packages/angular-meteor-data/modules/router.js',
-    '../angular-meteor/packages/angular-meteor-data/modules/utils.js',
-    '../angular-meteor/packages/angular-meteor-data/modules/mixer.js',
-    '../angular-meteor/packages/angular-meteor-data/modules/scope.js',
-    '../angular-meteor/packages/angular-meteor-data/modules/view-model.js',
-    '../angular-meteor/packages/angular-meteor-data/modules/core.js',
-    '../angular-meteor/packages/angular-meteor-data/modules/reactive.js',
-    '../angular-meteor/packages/angular-meteor-data/angular-meteor.js'
-  ], 'client');
+  /*
+    To load local version of angular-meteor:
+      - Clone git@github.com:Urigo/angular-meteor.git into parent dir.
+      - Remove `angular-meteor-data` from the dependencies list.
+      - Remove the following code block from comment
   */
+
+  // api.addFiles([
+  //   '../angular-meteor/dist/angular-meteor.js'
+  // ], 'client');
 
   api.addFiles([
     'tests/mocks.js',
     'tests/integration/auth.spec.js'
   ], 'client');
+
+  api.addFiles([
+    'tests/publish.js'
+  ], 'server');
 });

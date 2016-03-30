@@ -110,11 +110,11 @@ describe('angular-meteor.auth', function() {
           done();
         });
 
-        scope.$$throttledDigest();
+        scope.$$afterFlush('$$throttledDigest');
       });
 
       it('should return a promise and resolve it once a valid user is logged in', function(done) {
-        Accounts.login('tempUser', function() {
+        Accounts.login('tempUser').onStart(function() {
           var spy = jasmine.createSpy().and.returnValue(true);
 
           scope.$awaitUser(spy).then(function(user) {
@@ -123,13 +123,13 @@ describe('angular-meteor.auth', function() {
             expect(user.username).toEqual('tempUser');
             done();
           });
-
-          scope.$$throttledDigest();
+        }).onEnd(function() {;
+          scope.$$afterFlush('$$throttledDigest');
         });
       });
 
       it('should return a promise and reject it once an invalid user is logged in', function(done) {
-        Accounts.login('tempUser', function() {
+        Accounts.login('tempUser').onStart(function() {
           var spy = jasmine.createSpy().and.returnValue(false);
 
           scope.$awaitUser(spy).catch(function(err) {
@@ -138,13 +138,13 @@ describe('angular-meteor.auth', function() {
             expect(err).toEqual('FORBIDDEN');
             done();
           });
-
-          scope.$$throttledDigest();
+        }).onEnd(function() {
+          scope.$$afterFlush('$$throttledDigest');
         });
       });
 
       it('should return a custom validation error if validation method returns a string', function(done) {
-        Accounts.login('tempUser', function() {
+        Accounts.login('tempUser').onStart(function() {
           var spy = jasmine.createSpy().and.returnValue('NOT_ALLOWED');
 
           scope.$awaitUser(spy).catch(function(err) {
@@ -153,13 +153,13 @@ describe('angular-meteor.auth', function() {
             expect(err).toEqual('NOT_ALLOWED');
             done();
           });
-
-          scope.$$throttledDigest();
+        }).onEnd(function() {
+          scope.$$afterFlush('$$throttledDigest');
         });
       });
 
       it('should return a custom validation error if validation method returns an error', function(done) {
-        Accounts.login('tempUser', function() {
+        Accounts.login('tempUser').onStart(function() {
           var err = Error();
           var spy = jasmine.createSpy().and.returnValue(err);
 
@@ -170,7 +170,8 @@ describe('angular-meteor.auth', function() {
             done();
           });
 
-          scope.$$throttledDigest();
+        }).onEnd(function() {
+          scope.$$afterFlush('$$throttledDigest');
         });
       });
 
@@ -178,6 +179,19 @@ describe('angular-meteor.auth', function() {
         var promise = scope.$awaitUser();
         expect(Tracker.Computation.prototype.stop).toHaveBeenCalled();
         promise.stop();
+      });
+
+      it('should not cancel subscriptions once user has logged in', function(done) {
+        Accounts.login('tempUser').onStart(function() {
+          var spy = jasmine.createSpy().and.returnValue(true);
+
+          scope.$awaitUser(spy).then(function() {
+            scope.subscribe('dummy', angular.noop, done);
+          });
+
+        }).onEnd(function() {
+          scope.$$afterFlush('$$throttledDigest');
+        });
       });
     });
 
@@ -194,16 +208,17 @@ describe('angular-meteor.auth', function() {
       });
 
       it('should call $awaitUser() and ignore validation function', function(done) {
-        Accounts.login('tempUser', function() {
+        Accounts.login('tempUser').onStart(function() {
           var spy = jasmine.createSpy().and.returnValue(false);
           scope.$waitForUser(spy).then(done);
-          scope.$$throttledDigest();
+        }).onEnd(function() {
+          scope.$$afterFlush('$$throttledDigest');
         });
       });
 
       it('should call $awaitUser() and ignore error', function(done) {
         scope.$waitForUser().catch(done).finally(done);
-        scope.$$throttledDigest();
+        scope.$$afterFlush('$$throttledDigest');
       });
     });
 
@@ -220,10 +235,11 @@ describe('angular-meteor.auth', function() {
       });
 
       it('should call $awaitUser() and ignore validation function', function(done) {
-        Accounts.login('tempUser', function() {
+        Accounts.login('tempUser').onStart(function() {
           var spy = jasmine.createSpy().and.returnValue(false);
           scope.$waitForUser(spy).then(done);
-          scope.$$throttledDigest();
+        }).onEnd(function() {
+          scope.$$afterFlush('$$throttledDigest');
         });
       });
     });
