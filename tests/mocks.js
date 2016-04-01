@@ -28,8 +28,14 @@ Package['accounts-base'] = function() {
     onEnd = onEnd || angular.noop;
 
     var cbs = {
-      onStart: function(cb) { onStart = cb },
-      onEnd: function(cb) { onEnd = cb }
+      onStart: function(cb) {
+        onStart = cb;
+        return cbs;
+      },
+      onEnd: function(cb) {
+        onEnd = cb;
+        return cbs
+      }
     };
 
     setTimeout(function() {

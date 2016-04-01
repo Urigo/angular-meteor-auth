@@ -11,7 +11,10 @@ angular.module('angular-meteor.auth', [
   This mixin comes in a seperate package called `angular-meteor-auth`. Note that `accounts-base`
   package needs to be installed in order for this module to work, otherwise an error will be thrown.
  */
-.factory('$$Auth', function() {
+.factory('$$Auth', [
+  '$Mixer',
+
+function($Mixer) {
   const Accounts = (Package['accounts-base'] || {}).Accounts;
 
   if (!Accounts) throw Error(
@@ -38,24 +41,28 @@ angular.module('angular-meteor.auth', [
   // once login has failed or user is not valid, otherwise it will be resolved with the current
   // user
   $$Auth.$awaitUser = function(validate) {
-    validate = validate ? this.$bindToContext(validate) : function() {return true};
+    validate = validate ? this.$bindToContext($Mixer.caller, validate) : function() {return true};
 
     if (!_.isFunction(validate))
       throw Error('argument 1 must be a function');
 
-    let deferred = this.$$defer();
+    const deferred = this.$$defer();
 
-    let computation = Meteor.autorun((computation) => {
+    // Note the promise is being fulfilled in the next event loop to avoid
+    // nested computations, otherwise the outer computation will cancel the
+    // inner one once the scope has been destroyed which will lead to subscription
+    // failures. Happens mainly after resolving a route.
+    const computation = this.autorun((computation) => {
       if (this.getReactively('isLoggingIn')) return;
       // Stop computation once a user has logged in
       computation.stop();
 
       let user = this.currentUser;
-      if (!user) return deferred.reject(errors.required);
+      if (!user) return this.$$afterFlush(deferred.reject, errors.required);
 
       let isValid = validate(user);
       // Resolve the promise if validation has passed
-      if (isValid == true) return deferred.resolve(user);
+      if (isValid == true) return this.$$afterFlush(deferred.resolve, user);
 
       let error;
 
@@ -64,13 +71,22 @@ angular.module('angular-meteor.auth', [
       else
         error = errors.forbidden;
 
-      deferred.reject(error);
+      return this.$$afterFlush(deferred.reject, error);
     });
 
     let promise = deferred.promise;
     promise.stop = computation.stop.bind(computation);
     return promise;
   };
+
+  // Calls a function with the provided args after flush
+  $$Auth.$$afterFlush = function(fn, ...args) {
+    if (_.isString(fn)) {
+      fn = this[fn];
+    }
+
+    return Tracker.afterFlush(fn.bind(this, ...args));
+  }
 
   // API v0.2.0
   // Aliases with small modificatons
@@ -93,7 +109,7 @@ angular.module('angular-meteor.auth', [
   };
 
   return $$Auth;
-})
+}])
 
 
 /*
