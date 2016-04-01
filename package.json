@@ -1,0 +1,42 @@
+{
+  "name": "angular-meteor-auth",
+  "main": "./dist/angular-meteor-auth.js",
+  "version": "1.0.0",
+  "description": "Angular-Meteor authentication module",
+  "keywords": [
+    "AngularJS",
+    "Meteor",
+    "angular-meteor-auth",
+    "angular-meteor",
+    "angular",
+    "auth"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "test": "./test_ci.sh",
+    "test:watch": "./test.sh",
+    "watch": "webpack --watch --progress --config webpack/dist.js",
+    "build:dist": "webpack --progress --config webpack/dist.js",
+    "build:dev": "webpack --progress --config webpack/dev.js",
+    "build:prod": "webpack --progress --config webpack/prod.js --optimize-minimize",
+    "build": "npm run build:dist && npm run build:prod",
+    "prepublish": "npm run build"
+  },
+  "peerDependencies": {
+    "angular-meteor": "~1.3.9"
+  },
+  "devDependencies": {
+    "babel": "^6.3.26",
+    "babel-core": "^6.4.5",
+    "babel-eslint": "^4.1.6",
+    "babel-loader": "^6.2.1",
+    "babel-plugin-add-module-exports": "^0.1.2",
+    "babel-preset-es2015": "^6.3.13",
+    "eslint": "^1.10.3",
+    "eslint-config-airbnb": "^4.0.0",
+    "eslint-loader": "^1.2.1",
+    "eslint-plugin-import": "^0.13.0",
+    "lodash": "^3.10.1",
+    "webpack": "^1.12.9"
+  }
+}
