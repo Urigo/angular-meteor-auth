@@ -18,30 +18,29 @@
   "license": "MIT",
   "ignore": [
     "**/.*",
-    "node_modules",
-    "bower_components",
-    "test",
-    "tests",
-    ".build.urigo:angular",
-    ".coverage",
-    ".docs",
-    ".meteor",
-    ".npm",
-    "plugin",
-    "test",
     ".coveralls.yml",
     ".editorconfig",
+    ".eslintrc.json",
+    ".meteor",
+    ".npm",
+    ".npmignore",
     ".travis.yml",
     ".versions",
+    "bower_components",
+    "bundle-min.sh",
+    "node_modules",
     "package.js",
     "package.json",
+    "src",
+    "test.sh",
+    "test_ci.sh",
+    "tests",
     "versions.json",
-    "run_tests.sh",
-    "run_tests_ci.sh"
+    "webpack"
   ],
   "dependencies": {
-    "meteor-client-side": "~0.2.2",
-    "angular": "1.4.4",
-    "angular-meteor": "~1.3.9"
+    "angular": "^1.4.4",
+    "angular-meteor": "~1.3.9",
+    "meteor-client-side": "~0.2.2"
   }
 }

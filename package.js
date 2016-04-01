@@ -18,7 +18,7 @@ Package.onUse(function (api) {
 
   // Files to load in Client only.
   api.add_files([
-    'angular-meteor-auth.js'
+    'src/angular-meteor-auth.js'
   ], 'client');
 });
 

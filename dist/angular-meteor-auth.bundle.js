@@ -12,20 +12,23 @@
 
 /* Imports */
 var Meteor = Package.meteor.Meteor;
+var global = Package.meteor.global;
+var meteorEnv = Package.meteor.meteorEnv;
 var _ = Package.underscore._;
 var Tracker = Package.tracker.Tracker;
 var Deps = Package.tracker.Deps;
-var ECMAScript = Package.ecmascript.ECMAScript;
 var ReactiveVar = Package['reactive-var'].ReactiveVar;
 var Accounts = Package['accounts-base'].Accounts;
-var AccountsClient = Package['accounts-base'].AccountsClient;
-var babelHelpers = Package['babel-runtime'].babelHelpers;
+var meteorInstall = Package.modules.meteorInstall;
+var Buffer = Package.modules.Buffer;
+var process = Package.modules.process;
 var Symbol = Package['ecmascript-runtime'].Symbol;
 var Map = Package['ecmascript-runtime'].Map;
 var Set = Package['ecmascript-runtime'].Set;
+var meteorBabelHelpers = Package['babel-runtime'].meteorBabelHelpers;
 var Promise = Package.promise.Promise;
 
-(function(){
+var require = meteorInstall({"node_modules":{"meteor":{"angular-meteor-auth":{"angular-meteor-auth.js":function(require,exports,module){
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                        //
@@ -65,7 +68,7 @@ angular.module('angular-meteor.auth', ['angular-meteor.mixer', 'angular-meteor.c
   // will validate if the current user is valid or not. Returns a promise which will be rejected          //
   // once login has failed or user is not valid, otherwise it will be resolved with the current           //
   // user                                                                                                 //
-  $$Auth.$awaitUser = function (validate) {                                                               // 40
+  $$Auth.$awaitUser = function (validate) {                                                               // 14
     var _this = this;                                                                                     //
                                                                                                           //
     validate = validate ? this.$bindToContext(validate) : function () {                                   // 41
@@ -79,16 +82,16 @@ angular.module('angular-meteor.auth', ['angular-meteor.mixer', 'angular-meteor.c
     var computation = Meteor.autorun(function (computation) {                                             // 48
       if (_this.getReactively('isLoggingIn')) return;                                                     // 49
       // Stop computation once a user has logged in                                                       //
-      computation.stop();                                                                                 // 51
+      computation.stop();                                                                                 // 48
                                                                                                           //
       var user = _this.currentUser;                                                                       // 53
       if (!user) return deferred.reject(errors.required);                                                 // 54
                                                                                                           //
       var isValid = validate(user);                                                                       // 56
       // Resolve the promise if validation has passed                                                     //
-      if (isValid == true) return deferred.resolve(user);                                                 // 58
+      if (isValid == true) return deferred.resolve(user);                                                 // 48
                                                                                                           //
-      var error = undefined;                                                                              // 60
+      var error = void 0;                                                                                 // 60
                                                                                                           //
       if (_.isString(isValid) || isValid instanceof Error) error = isValid;else error = errors.forbidden;
                                                                                                           //
@@ -105,18 +108,18 @@ angular.module('angular-meteor.auth', ['angular-meteor.mixer', 'angular-meteor.c
                                                                                                           //
   // No validation                                                                                        //
   // Silent error                                                                                         //
-  $$Auth.$waitForUser = function () {                                                                     // 80
+  $$Auth.$waitForUser = function () {                                                                     // 14
     // Silent error                                                                                       //
     return this.$awaitUser()['catch']();                                                                  // 82
   };                                                                                                      //
                                                                                                           //
   // No validation                                                                                        //
-  $$Auth.$requireUser = function () {                                                                     // 86
+  $$Auth.$requireUser = function () {                                                                     // 14
     return this.$awaitUser();                                                                             // 87
   };                                                                                                      //
                                                                                                           //
   // Full functionality                                                                                   //
-  $$Auth.$requireValidUser = function () {                                                                // 91
+  $$Auth.$requireValidUser = function () {                                                                // 14
     return this.$awaitUser.apply(this, arguments);                                                        // 92
   };                                                                                                      //
                                                                                                           //
@@ -127,7 +130,7 @@ angular.module('angular-meteor.auth', ['angular-meteor.mixer', 'angular-meteor.c
   External service for syntactic sugare.                                                                  //
   Originally created as UI-router's resolve handler.                                                      //
  */                                                                                                       //
-.service('$auth', ['$rootScope', '$$Auth', function ($rootScope, $$Auth) {                                //
+.service('$auth', ['$rootScope', '$$Auth', function ($rootScope, $$Auth) {                                // 1
   var _this2 = this;                                                                                      //
                                                                                                           //
   // Note that services are initialized once we call them which means that the mixin                      //
@@ -136,7 +139,7 @@ angular.module('angular-meteor.auth', ['angular-meteor.mixer', 'angular-meteor.c
     var v = $$Auth[k];                                                                                    // 111
     var stripped = k.substr(1);                                                                           // 112
     // Not using bind() so it would be testable                                                           //
-    _this2[stripped] = function () {                                                                      // 114
+    _this2[stripped] = function () {                                                                      // 110
       return $rootScope[k].apply($rootScope, arguments);                                                  //
     };                                                                                                    //
   });                                                                                                     //
@@ -145,8 +148,8 @@ angular.module('angular-meteor.auth', ['angular-meteor.mixer', 'angular-meteor.c
 }]);                                                                                                      //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-}).call(this);
-
+}}}}},{"extensions":[".js",".json"]});
+require("./node_modules/meteor/angular-meteor-auth/angular-meteor-auth.js");
 
 /* Exports */
 if (typeof Package === 'undefined') Package = {};

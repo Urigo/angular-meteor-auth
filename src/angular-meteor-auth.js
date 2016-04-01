@@ -1,10 +1,12 @@
-angular.module('angular-meteor.auth', [
+const name = 'angular-meteor.auth';
+export default name;
+
+angular.module(name, [
   'angular-meteor.mixer',
   'angular-meteor.core',
   'angular-meteor.view-model',
   'angular-meteor.reactive'
 ])
-
 
 /*
   A mixin which provides us with authentication related methods and properties.
@@ -17,10 +19,12 @@ angular.module('angular-meteor.auth', [
 function($Mixer) {
   const Accounts = (Package['accounts-base'] || {}).Accounts;
 
-  if (!Accounts) throw Error(
-    '`angular-meteor.auth` module requires `accounts-base` package, ' +
-    'please run `meteor add accounts-base` before use'
-  );
+  if (!Accounts) {
+    throw Error(
+      '`angular-meteor.auth` module requires `accounts-base` package, ' +
+      'please run `meteor add accounts-base` before use'
+    );
+  }
 
   const errors = {
     required: 'AUTH_REQUIRED',
@@ -41,10 +45,11 @@ function($Mixer) {
   // once login has failed or user is not valid, otherwise it will be resolved with the current
   // user
   $$Auth.$awaitUser = function(validate) {
-    validate = validate ? this.$bindToContext($Mixer.caller, validate) : function() {return true};
+    validate = validate ? this.$bindToContext($Mixer.caller, validate) : () => true;
 
-    if (!_.isFunction(validate))
+    if (!_.isFunction(validate)) {
       throw Error('argument 1 must be a function');
+    }
 
     const deferred = this.$$defer();
 
@@ -57,24 +62,25 @@ function($Mixer) {
       // Stop computation once a user has logged in
       computation.stop();
 
-      let user = this.currentUser;
-      if (!user) return this.$$afterFlush(deferred.reject, errors.required);
+      if (!this.currentUser) return this.$$afterFlush(deferred.reject, errors.required);
 
-      let isValid = validate(user);
+      const isValid = validate(this.currentUser);
       // Resolve the promise if validation has passed
-      if (isValid == true) return this.$$afterFlush(deferred.resolve, user);
+      if (isValid === true) return this.$$afterFlush(deferred.resolve, this.currentUser);
 
       let error;
 
-      if (_.isString(isValid) || isValid instanceof Error)
+      if (_.isString(isValid) || isValid instanceof Error) {
         error = isValid;
-      else
+      }
+      else {
         error = errors.forbidden;
+      }
 
       return this.$$afterFlush(deferred.reject, error);
     });
 
-    let promise = deferred.promise;
+    const promise = deferred.promise;
     promise.stop = computation.stop.bind(computation);
     return promise;
   };
@@ -86,7 +92,7 @@ function($Mixer) {
     }
 
     return Tracker.afterFlush(fn.bind(this, ...args));
-  }
+  };
 
   // API v0.2.0
   // Aliases with small modificatons
@@ -111,7 +117,6 @@ function($Mixer) {
   return $$Auth;
 }])
 
-
 /*
   External service for syntactic sugare.
   Originally created as UI-router's resolve handler.
@@ -124,13 +129,11 @@ function($rootScope, $$Auth) {
   // Note that services are initialized once we call them which means that the mixin
   // will be available by then
   _.keys($$Auth).forEach((k) => {
-    let v = $$Auth[k];
-    let stripped = k.substr(1);
+    const stripped = k.substr(1);
     // Not using bind() so it would be testable
     this[stripped] = (...args) => $rootScope[k](...args);
   });
 }])
-
 
 .run([
   '$Mixer',
