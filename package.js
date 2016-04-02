@@ -6,8 +6,9 @@ Package.describe({
   documentation: null
 });
 
-Package.onUse(function (api) {
+Package.onUse(function(api) {
   api.versionsFrom('METEOR@1.2.0.1');
+
   api.use('underscore@1.0.4');
   api.use('tracker@1.0.8');
   api.use('ecmascript');
@@ -18,7 +19,7 @@ Package.onUse(function (api) {
 
   // Files to load in Client only.
   api.add_files([
-    'src/angular-meteor-auth.js'
+    'dist/angular-meteor-auth.js'
   ], 'client');
 });
 
@@ -35,7 +36,7 @@ Package.onTest(function(api) {
     To load local version of angular-meteor:
       - Clone git@github.com:Urigo/angular-meteor.git into parent dir.
       - Remove `angular-meteor-data` from the dependencies list.
-      - Remove the following code block from comment
+      - Remove the following code block from comment.
   */
 
   // api.addFiles([
