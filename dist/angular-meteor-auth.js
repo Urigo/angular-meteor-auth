@@ -1,4 +1,4 @@
-/*! angular-meteor-auth v1.0.1 */
+/*! angular-meteor-auth v1.0.2 */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();

@@ -42,7 +42,7 @@ var _typeof3 = _interopRequireDefault(_typeof2);                                
                                                                                                                //
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }              //
                                                                                                                //
-/*! angular-meteor-auth v1.0.1 */                                                                              //
+/*! angular-meteor-auth v1.0.2 */                                                                              //
 (function () {                                                                                                 // 2
 	function webpackUniversalModuleDefinition(root, factory) {                                                    // 2
 		if ((typeof exports === 'undefined' ? 'undefined' : (0, _typeof3['default'])(exports)) === 'object' && (typeof module === 'undefined' ? 'undefined' : (0, _typeof3['default'])(module)) === 'object') module.exports = factory();else if (typeof define === 'function' && define.amd) define([], factory);else if ((typeof exports === 'undefined' ? 'undefined' : (0, _typeof3['default'])(exports)) === 'object') exports["angularMeteorAuth"] = factory();else root["angularMeteorAuth"] = factory();
