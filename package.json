@@ -23,7 +23,7 @@
     "prepublish": "npm run build"
   },
   "peerDependencies": {
-    "angular-meteor": "~1.3.9"
+    "angular-meteor": "^1.3.9"
   },
   "devDependencies": {
     "babel": "^6.3.26",
