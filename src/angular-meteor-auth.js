@@ -3,6 +3,7 @@ export default name;
 
 angular.module(name, [
   'angular-meteor.mixer',
+  'angular-meteor.scope',
   'angular-meteor.core',
   'angular-meteor.view-model',
   'angular-meteor.reactive'
@@ -32,11 +33,13 @@ function($Mixer) {
   };
 
   function $$Auth(vm = this) {
-    // reset auth properties
+    // Reset auth properties
     this.autorun(() => {
-      vm.currentUser = Accounts.user();
-      vm.currentUserId = Accounts.userId();
-      vm.isLoggingIn = Accounts.loggingIn();
+      // Note that we use Meteor and not Accounts since the following methods are
+      // not available in older versions of `accounts-base` meteor package
+      vm.currentUser = Meteor.user();
+      vm.currentUserId = Meteor.userId();
+      vm.isLoggingIn = Meteor.loggingIn();
     });
   }
 
