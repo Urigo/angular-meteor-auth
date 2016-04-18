@@ -71,7 +71,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  This mixin comes in a seperate package called `angular-meteor-auth`. Note that `accounts-base`
 	  package needs to be installed in order for this module to work, otherwise an error will be thrown.
 	 */
-	.factory('$$Auth', ['$Mixer', function ($Mixer) {
+	.factory('$$Auth', ['$Mixer', '$log', function ($Mixer, $log) {
 	  var Accounts = (Package['accounts-base'] || {}).Accounts;
 
 	  if (!Accounts) {
@@ -164,7 +164,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  // Silent error
 	  $$Auth.$waitForUser = function () {
 	    // Silent error
-	    return this.$awaitUser().catch();
+	    return this.$awaitUser().catch(function (err) {
+	      $log.debug('$awaitUser', err);
+	    });
 	  };
 
 	  // No validation

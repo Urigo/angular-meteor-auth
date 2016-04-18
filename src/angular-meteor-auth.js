@@ -14,9 +14,9 @@ angular.module(name, [
   package needs to be installed in order for this module to work, otherwise an error will be thrown.
  */
 .factory('$$Auth', [
-  '$Mixer',
+  '$Mixer', '$log',
 
-function($Mixer) {
+function($Mixer, $log) {
   const Accounts = (Package['accounts-base'] || {}).Accounts;
 
   if (!Accounts) {
@@ -101,7 +101,9 @@ function($Mixer) {
   // Silent error
   $$Auth.$waitForUser = function() {
     // Silent error
-    return this.$awaitUser().catch();
+    return this.$awaitUser().catch(err => {
+        $log.debug('$awaitUser', err);
+    });
   };
 
   // No validation
