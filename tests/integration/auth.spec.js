@@ -217,7 +217,11 @@ describe('angular-meteor.auth', function() {
       });
 
       it('should call $awaitUser() and ignore error', function(done) {
-        scope.$waitForUser().catch(done).finally(done);
+        scope.$waitForUser()
+          .then(angular.noop, done.fail)
+          .catch(done.fail)
+          .finally(done);
+
         scope.$$afterFlush('$$throttledDigest');
       });
     });

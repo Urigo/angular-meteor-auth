@@ -16,8 +16,9 @@ angular.module(name, [
  */
 .factory('$$Auth', [
   '$Mixer',
+  '$log',
 
-function($Mixer) {
+function($Mixer, $log) {
   const Accounts = (Package['accounts-base'] || {}).Accounts;
 
   if (!Accounts) {
@@ -104,7 +105,9 @@ function($Mixer) {
   // Silent error
   $$Auth.$waitForUser = function() {
     // Silent error
-    return this.$awaitUser().catch();
+    return this.$awaitUser().catch((err) => {
+      $log.debug(`user login has failed (${err})`);
+    });
   };
 
   // No validation
