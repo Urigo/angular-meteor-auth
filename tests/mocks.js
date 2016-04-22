@@ -76,6 +76,8 @@ Package['accounts-base'] = function() {
     });
   };
 
+  _.extend(Meteor, Accounts);
+
   return {
     Accounts: Accounts
   };
