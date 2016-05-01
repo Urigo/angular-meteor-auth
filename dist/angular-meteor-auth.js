@@ -1,4 +1,4 @@
-/*! angular-meteor-auth v1.0.2 */
+/*! angular-meteor-auth v1.0.3 */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -64,14 +64,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = name;
 
 
-	angular.module(name, ['angular-meteor.mixer', 'angular-meteor.core', 'angular-meteor.view-model', 'angular-meteor.reactive'])
+	angular.module(name, ['angular-meteor.mixer', 'angular-meteor.scope', 'angular-meteor.core', 'angular-meteor.view-model', 'angular-meteor.reactive'])
 
 	/*
 	  A mixin which provides us with authentication related methods and properties.
 	  This mixin comes in a seperate package called `angular-meteor-auth`. Note that `accounts-base`
 	  package needs to be installed in order for this module to work, otherwise an error will be thrown.
 	 */
-	.factory('$$Auth', ['$Mixer', function ($Mixer) {
+	.factory('$$Auth', ['$Mixer', '$log', function ($Mixer, $log) {
 	  var Accounts = (Package['accounts-base'] || {}).Accounts;
 
 	  if (!Accounts) {
@@ -86,11 +86,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	  function $$Auth() {
 	    var vm = arguments.length <= 0 || arguments[0] === undefined ? this : arguments[0];
 
-	    // reset auth properties
+	    // Reset auth properties
 	    this.autorun(function () {
-	      vm.currentUser = Accounts.user();
-	      vm.currentUserId = Accounts.userId();
-	      vm.isLoggingIn = Accounts.loggingIn();
+	      // Note that we use Meteor and not Accounts since the following methods are
+	      // not available in older versions of `accounts-base` meteor package
+	      vm.currentUser = Meteor.user();
+	      vm.currentUserId = Meteor.userId();
+	      vm.isLoggingIn = Meteor.loggingIn();
 	    });
 	  }
 
@@ -164,7 +166,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  // Silent error
 	  $$Auth.$waitForUser = function () {
 	    // Silent error
-	    return this.$awaitUser().catch();
+	    return this.$awaitUser().catch(function (err) {
+	      $log.debug('user login has failed (' + err + ')');
+	    });
 	  };
 
 	  // No validation
