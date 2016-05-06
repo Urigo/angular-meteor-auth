@@ -110,7 +110,7 @@ describe('angular-meteor.auth', function() {
           done();
         });
 
-        scope.$$afterFlush('$$throttledDigest');
+        scope.$$deferredDigest();
       });
 
       it('should return a promise and resolve it once a valid user is logged in', function(done) {
@@ -124,7 +124,7 @@ describe('angular-meteor.auth', function() {
             done();
           });
         }).onEnd(function() {;
-          scope.$$afterFlush('$$throttledDigest');
+          scope.$$deferredDigest();
         });
       });
 
@@ -139,7 +139,7 @@ describe('angular-meteor.auth', function() {
             done();
           });
         }).onEnd(function() {
-          scope.$$afterFlush('$$throttledDigest');
+          scope.$$deferredDigest();
         });
       });
 
@@ -154,7 +154,7 @@ describe('angular-meteor.auth', function() {
             done();
           });
         }).onEnd(function() {
-          scope.$$afterFlush('$$throttledDigest');
+          scope.$$deferredDigest();
         });
       });
 
@@ -171,14 +171,19 @@ describe('angular-meteor.auth', function() {
           });
 
         }).onEnd(function() {
-          scope.$$afterFlush('$$throttledDigest');
+          scope.$$deferredDigest();
         });
       });
 
-      it('should not fulfill promise once auto computation has been stopped', function() {
+      it('should not autorun once stopped', function(done) {
+        var autorun = Tracker.autorun;
+        Tracker.autorun = done.fail;
+
         var promise = scope.$awaitUser();
-        expect(Tracker.Computation.prototype.stop).toHaveBeenCalled();
+        Tracker.autorun = autorun;
+
         promise.stop();
+        setTimeout(done);
       });
 
       it('should not cancel subscriptions once user has logged in', function(done) {
@@ -190,8 +195,32 @@ describe('angular-meteor.auth', function() {
           });
 
         }).onEnd(function() {
-          scope.$$afterFlush('$$throttledDigest');
+          scope.$$deferredDigest();
         });
+      });
+
+      it('should keep waiting for user once the outer computation has been stopped', function(done) {
+        login();
+
+        function login() {
+          Accounts.login('tempUser').onStart(function() {
+            awaitUser();
+          }).onEnd(function() {
+            scope.$$deferredDigest();
+          })
+        }
+
+        function awaitUser() {
+          var c = Tracker.autorun(function(c) {
+            Tracker.onInvalidate(function() {
+              c.stop();
+            });
+
+            scope.$awaitUser().then(done);
+          });
+
+          c.invalidate();
+        }
       });
     });
 
@@ -212,7 +241,7 @@ describe('angular-meteor.auth', function() {
           var spy = jasmine.createSpy().and.returnValue(false);
           scope.$waitForUser(spy).then(done);
         }).onEnd(function() {
-          scope.$$afterFlush('$$throttledDigest');
+          scope.$$deferredDigest();
         });
       });
 
@@ -222,7 +251,7 @@ describe('angular-meteor.auth', function() {
           .catch(done.fail)
           .finally(done);
 
-        scope.$$afterFlush('$$throttledDigest');
+        scope.$$deferredDigest();
       });
     });
 
@@ -243,7 +272,7 @@ describe('angular-meteor.auth', function() {
           var spy = jasmine.createSpy().and.returnValue(false);
           scope.$waitForUser(spy).then(done);
         }).onEnd(function() {
-          scope.$$afterFlush('$$throttledDigest');
+          scope.$$deferredDigest();
         });
       });
     });

@@ -28,9 +28,9 @@ function($Mixer, $log) {
     );
   }
 
-  const errors = {
-    required: 'AUTH_REQUIRED',
-    forbidden: 'FORBIDDEN'
+  const ERRORS = {
+    REQUIRED: 'AUTH_REQUIRED',
+    FORBIDDEN: 'FORBIDDEN'
   };
 
   function $$Auth(vm = this) {
@@ -55,22 +55,16 @@ function($Mixer, $log) {
       throw Error('argument 1 must be a function');
     }
 
-    const deferred = this.$$defer();
-
-    // Note the promise is being fulfilled in the next event loop to avoid
-    // nested computations, otherwise the outer computation will cancel the
-    // inner one once the scope has been destroyed which will lead to subscription
-    // failures. Happens mainly after resolving a route.
-    const computation = this.autorun((computation) => {
+    return this.$$autoPromise(({ resolve, reject }, computation) => {
       if (this.getReactively('isLoggingIn')) return;
       // Stop computation once a user has logged in
       computation.stop();
 
-      if (!this.currentUser) return this.$$afterFlush(deferred.reject, errors.required);
+      if (!this.currentUser) return reject(ERRORS.REQUIRED);
 
       const isValid = validate(this.currentUser);
       // Resolve the promise if validation has passed
-      if (isValid === true) return this.$$afterFlush(deferred.resolve, this.currentUser);
+      if (isValid === true) return resolve(this.currentUser);
 
       let error;
 
@@ -78,24 +72,11 @@ function($Mixer, $log) {
         error = isValid;
       }
       else {
-        error = errors.forbidden;
+        error = ERRORS.FORBIDDEN;
       }
 
-      return this.$$afterFlush(deferred.reject, error);
+      return reject(error);
     });
-
-    const promise = deferred.promise;
-    promise.stop = computation.stop.bind(computation);
-    return promise;
-  };
-
-  // Calls a function with the provided args after flush
-  $$Auth.$$afterFlush = function(fn, ...args) {
-    if (_.isString(fn)) {
-      fn = this[fn];
-    }
-
-    return Tracker.afterFlush(fn.bind(this, ...args));
   };
 
   // API v0.2.0
