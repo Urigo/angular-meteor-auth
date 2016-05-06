@@ -23,27 +23,24 @@ Package['accounts-base'] = function() {
     return deps
   }, {});
 
-  Accounts.login = function(username, onStart, onEnd) {
-    onStart = onStart || angular.noop;
-    onEnd = onEnd || angular.noop;
+  Accounts.login = function(username, onStartCb, onEndCb) {
+    const onStartHook = new Hook({
+      debugPrintExceptions: 'on login start callback'
+    });
 
-    var cbs = {
-      onStart: function(cb) {
-        onStart = cb;
-        return cbs;
-      },
-      onEnd: function(cb) {
-        onEnd = cb;
-        return cbs
-      }
-    };
+    const onEndHook = new Hook({
+      debugPrintExceptions: 'on login end callback'
+    });
+
+    if (_.isFunction(onStartCb)) onStartHook.register(onStartCb);
+    if (_.isFunction(onEndCb)) onEndHook.register(onEndCb);
 
     setTimeout(function() {
       vals.loggingIn = true;
       deps.loggingIn.changed();
 
       Tracker.afterFlush(function() {
-        onStart();
+        onStartHook.each(function(cb) { cb() });
 
         setTimeout(function() {
           vals.user = { username: username };
@@ -54,12 +51,17 @@ Package['accounts-base'] = function() {
           deps.userId.changed();
           deps.loggingIn.changed();
 
-          Tracker.afterFlush(onEnd);
+          Tracker.afterFlush(function() {
+            onEndHook.each(function(cb) { cb() });
+          });
         });
       })
     });
 
-    return cbs;
+    return {
+      onStart: onStartHook.register.bind(onStartHook),
+      onEnd: onEndHook.register.bind(onEndHook)
+    };
   };
 
   Accounts.logout = function(cb) {
