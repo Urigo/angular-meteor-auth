@@ -38,7 +38,9 @@ describe('angular-meteor.auth', function() {
       it('should be correlated with user status', function(done) {
         expect(scope.currentUser).toEqual(null);
 
-        Accounts.login('dummy_user').onEnd(function() {
+        var login = Accounts.login('dummy_user');
+
+        login.onEnd(function() {
           expect(scope.currentUser).toEqual({ username: 'dummy_user' });
           done();
         });
@@ -59,7 +61,9 @@ describe('angular-meteor.auth', function() {
       it('should be correlated with user status', function(done) {
         expect(scope.currentUserId).toEqual(null);
 
-        Accounts.login('dummy_user').onEnd(function() {
+        var login = Accounts.login('dummy_user');
+
+        login.onEnd(function() {
           expect(scope.currentUserId).toEqual(Accounts.userId());
           done();
         });
@@ -110,11 +114,13 @@ describe('angular-meteor.auth', function() {
           done();
         });
 
-        scope.$$afterFlush('$$throttledDigest');
+        scope.$$deferredDigest();
       });
 
       it('should return a promise and resolve it once a valid user is logged in', function(done) {
-        Accounts.login('tempUser').onStart(function() {
+        var login = Accounts.login('tempUser');
+
+        login.onStart(function() {
           var spy = jasmine.createSpy().and.returnValue(true);
 
           scope.$awaitUser(spy).then(function(user) {
@@ -123,13 +129,17 @@ describe('angular-meteor.auth', function() {
             expect(user.username).toEqual('tempUser');
             done();
           });
-        }).onEnd(function() {;
-          scope.$$afterFlush('$$throttledDigest');
+        });
+
+        login.onEnd(function() {;
+          scope.$$deferredDigest();
         });
       });
 
       it('should return a promise and reject it once an invalid user is logged in', function(done) {
-        Accounts.login('tempUser').onStart(function() {
+        var login = Accounts.login('tempUser');
+
+        login.onStart(function() {
           var spy = jasmine.createSpy().and.returnValue(false);
 
           scope.$awaitUser(spy).catch(function(err) {
@@ -138,13 +148,17 @@ describe('angular-meteor.auth', function() {
             expect(err).toEqual('FORBIDDEN');
             done();
           });
-        }).onEnd(function() {
-          scope.$$afterFlush('$$throttledDigest');
+        });
+
+        login.onEnd(function() {
+          scope.$$deferredDigest();
         });
       });
 
       it('should return a custom validation error if validation method returns a string', function(done) {
-        Accounts.login('tempUser').onStart(function() {
+        var login = Accounts.login('tempUser');
+
+        login.onStart(function() {
           var spy = jasmine.createSpy().and.returnValue('NOT_ALLOWED');
 
           scope.$awaitUser(spy).catch(function(err) {
@@ -153,13 +167,17 @@ describe('angular-meteor.auth', function() {
             expect(err).toEqual('NOT_ALLOWED');
             done();
           });
-        }).onEnd(function() {
-          scope.$$afterFlush('$$throttledDigest');
+        });
+
+        login.onEnd(function() {
+          scope.$$deferredDigest();
         });
       });
 
       it('should return a custom validation error if validation method returns an error', function(done) {
-        Accounts.login('tempUser').onStart(function() {
+        var login = Accounts.login('tempUser');
+
+        login.onStart(function() {
           var err = Error();
           var spy = jasmine.createSpy().and.returnValue(err);
 
@@ -170,28 +188,67 @@ describe('angular-meteor.auth', function() {
             done();
           });
 
-        }).onEnd(function() {
-          scope.$$afterFlush('$$throttledDigest');
+        });
+
+        login.onEnd(function() {
+          scope.$$deferredDigest();
         });
       });
 
-      it('should not fulfill promise once auto computation has been stopped', function() {
+      it('should not autorun once stopped', function(done) {
+        var autorun = Tracker.autorun;
+        Tracker.autorun = done.fail;
+
         var promise = scope.$awaitUser();
-        expect(Tracker.Computation.prototype.stop).toHaveBeenCalled();
+        Tracker.autorun = autorun;
+
         promise.stop();
+        setTimeout(done);
       });
 
       it('should not cancel subscriptions once user has logged in', function(done) {
-        Accounts.login('tempUser').onStart(function() {
+        var login = Accounts.login('tempUser');
+
+        login.onStart(function() {
           var spy = jasmine.createSpy().and.returnValue(true);
 
           scope.$awaitUser(spy).then(function() {
             scope.subscribe('dummy', angular.noop, done);
           });
 
-        }).onEnd(function() {
-          scope.$$afterFlush('$$throttledDigest');
         });
+
+        login.onEnd(function() {
+          scope.$$deferredDigest();
+        });
+      });
+
+      it('should keep waiting for user once the outer computation has been stopped', function(done) {
+        login();
+
+        function login() {
+          var login = Accounts.login('tempUser');
+
+          login.onStart(function() {
+            awaitUser();
+          });
+
+          login.onEnd(function() {
+            scope.$$deferredDigest();
+          });
+        }
+
+        function awaitUser() {
+          var c = Tracker.autorun(function(c) {
+            Tracker.onInvalidate(function() {
+              c.stop();
+            });
+
+            scope.$awaitUser().then(done);
+          });
+
+          c.invalidate();
+        }
       });
     });
 
@@ -208,11 +265,15 @@ describe('angular-meteor.auth', function() {
       });
 
       it('should call $awaitUser() and ignore validation function', function(done) {
-        Accounts.login('tempUser').onStart(function() {
+        var login = Accounts.login('tempUser');
+
+        login.onStart(function() {
           var spy = jasmine.createSpy().and.returnValue(false);
           scope.$waitForUser(spy).then(done);
-        }).onEnd(function() {
-          scope.$$afterFlush('$$throttledDigest');
+        });
+
+        login.onEnd(function() {
+          scope.$$deferredDigest();
         });
       });
 
@@ -222,7 +283,7 @@ describe('angular-meteor.auth', function() {
           .catch(done.fail)
           .finally(done);
 
-        scope.$$afterFlush('$$throttledDigest');
+        scope.$$deferredDigest();
       });
     });
 
@@ -239,11 +300,15 @@ describe('angular-meteor.auth', function() {
       });
 
       it('should call $awaitUser() and ignore validation function', function(done) {
-        Accounts.login('tempUser').onStart(function() {
+        var login = Accounts.login('tempUser');
+
+        login.onStart(function() {
           var spy = jasmine.createSpy().and.returnValue(false);
           scope.$waitForUser(spy).then(done);
-        }).onEnd(function() {
-          scope.$$afterFlush('$$throttledDigest');
+        });
+
+        login.onEnd(function() {
+          scope.$$deferredDigest();
         });
       });
     });

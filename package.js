@@ -27,6 +27,7 @@ Package.onTest(function(api) {
   api.use('underscore@1.0.4');
   api.use('tracker@1.0.8');
   api.use('mongo@1.1.1');
+  api.use('callback-hook');
   api.use('sanjo:jasmine@0.19.0');
   api.use('angular:angular-mocks@1.4.7');
   api.use('angular-meteor-auth');
