@@ -1,4 +1,4 @@
-/*! angular-meteor-auth v1.1.0 */
+/*! angular-meteor-auth v1.1.1 */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -71,7 +71,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  This mixin comes in a seperate package called `angular-meteor-auth`. Note that `accounts-base`
 	  package needs to be installed in order for this module to work, otherwise an error will be thrown.
 	 */
-	.factory('$$Auth', ['$Mixer', '$log', function ($Mixer, $log) {
+	.factory('$$Auth', ['$Mixer', '$log', '$q', function ($Mixer, $log, $q) {
 	  var Accounts = (Package['accounts-base'] || {}).Accounts;
 
 	  if (!Accounts) {
@@ -133,19 +133,24 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      if (!_this.currentUser) return _this.$$afterFlush(deferred.reject, errors.required);
 
-	      var isValid = validate(_this.currentUser);
-	      // Resolve the promise if validation has passed
-	      if (isValid === true) return _this.$$afterFlush(deferred.resolve, _this.currentUser);
+	      $q.when(validate(_this.currentUser)).then(function (isValid) {
+	        // Resolve the promise if validation has passed
+	        if (isValid === true) {
+	          _this.$$afterFlush(deferred.resolve, _this.currentUser);
+	        } else {
+	          return $q.reject(isValid);
+	        }
+	      }).catch(function (isValid) {
+	        var error = void 0;
 
-	      var error = void 0;
+	        if (_.isString(isValid) || isValid instanceof Error) {
+	          error = isValid;
+	        } else {
+	          error = errors.forbidden;
+	        }
 
-	      if (_.isString(isValid) || isValid instanceof Error) {
-	        error = isValid;
-	      } else {
-	        error = errors.forbidden;
-	      }
-
-	      return _this.$$afterFlush(deferred.reject, error);
+	        _this.$$afterFlush(deferred.reject, error);
+	      });
 	    });
 
 	    deferred.promise.stop = computation.stop.bind(computation);
