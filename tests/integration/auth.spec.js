@@ -4,10 +4,12 @@ describe('angular-meteor.auth', function() {
 
   var Accounts = Package['accounts-base'].Accounts;
   var $rootScope;
+  var $q;
   var $auth;
 
-  beforeEach(angular.mock.inject(function(_$rootScope_, _$auth_) {
+  beforeEach(angular.mock.inject(function(_$rootScope_, _$q_, _$auth_) {
     $rootScope = _$rootScope_;
+    $q = _$q_;
     $auth = _$auth_;
   }));
 
@@ -170,6 +172,82 @@ describe('angular-meteor.auth', function() {
             done();
           });
 
+        }).onEnd(function() {
+          scope.$$afterFlush('$$throttledDigest');
+        });
+      });
+
+      it('should succeed if validation method asynchronously returns true', function(done) {
+        Accounts.login('tempUser', function() {
+          var spy = jasmine.createSpy().and.returnValue($q.resolve(true));
+
+          scope.$awaitUser(spy).then(function() {
+            expect(Tracker.Computation.prototype.stop).toHaveBeenCalled();
+            expect(spy).toHaveBeenCalled();
+            done();
+          });
+        }).onEnd(function() {
+          scope.$$afterFlush('$$throttledDigest');
+        });
+      });
+
+      it('should return a custom validation error if validation method asynchronously resolves to a string', function(done) {
+        Accounts.login('tempUser', function() {
+          var spy = jasmine.createSpy().and.returnValue($q.resolve('NOT_ALLOWED'));
+
+          scope.$awaitUser(spy).catch(function(err) {
+            expect(Tracker.Computation.prototype.stop).toHaveBeenCalled();
+            expect(spy).toHaveBeenCalled();
+            expect(err).toEqual('NOT_ALLOWED');
+            done();
+          });
+        }).onEnd(function() {
+          scope.$$afterFlush('$$throttledDigest');
+        });
+      });
+
+      it('should return a custom validation error if validation method asynchronously resolves to an error', function(done) {
+        Accounts.login('tempUser', function() {
+          var err = Error();
+          var spy = jasmine.createSpy().and.returnValue($q.resolve(err));
+
+          scope.$awaitUser(spy).catch(function(err) {
+            expect(Tracker.Computation.prototype.stop).toHaveBeenCalled();
+            expect(spy).toHaveBeenCalled();
+            expect(err).toEqual(err);
+            done();
+          });
+        }).onEnd(function() {
+          scope.$$afterFlush('$$throttledDigest');
+        });
+      });
+
+      it('should return a custom validation error if validation method asynchronously rejects to a string', function(done) {
+        Accounts.login('tempUser', function() {
+          var spy = jasmine.createSpy().and.returnValue($q.reject('NOT_ALLOWED'));
+
+          scope.$awaitUser(spy).catch(function(err) {
+            expect(Tracker.Computation.prototype.stop).toHaveBeenCalled();
+            expect(spy).toHaveBeenCalled();
+            expect(err).toEqual('NOT_ALLOWED');
+            done();
+          });
+        }).onEnd(function() {
+          scope.$$afterFlush('$$throttledDigest');
+        });
+      });
+
+      it('should return a custom validation error if validation method asynchronously rejects to an error', function(done) {
+        Accounts.login('tempUser', function() {
+          var err = Error();
+          var spy = jasmine.createSpy().and.returnValue($q.reject(err));
+
+          scope.$awaitUser(spy).catch(function(err) {
+            expect(Tracker.Computation.prototype.stop).toHaveBeenCalled();
+            expect(spy).toHaveBeenCalled();
+            expect(err).toEqual(err);
+            done();
+          });
         }).onEnd(function() {
           scope.$$afterFlush('$$throttledDigest');
         });

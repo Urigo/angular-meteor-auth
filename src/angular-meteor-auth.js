@@ -17,8 +17,9 @@ angular.module(name, [
 .factory('$$Auth', [
   '$Mixer',
   '$log',
+  '$q',
 
-function($Mixer, $log) {
+function($Mixer, $log, $q) {
   const Accounts = (Package['accounts-base'] || {}).Accounts;
 
   if (!Accounts) {
@@ -77,20 +78,26 @@ function($Mixer, $log) {
 
       if (!this.currentUser) return this.$$afterFlush(deferred.reject, errors.required);
 
-      const isValid = validate(this.currentUser);
-      // Resolve the promise if validation has passed
-      if (isValid === true) return this.$$afterFlush(deferred.resolve, this.currentUser);
+      $q.when(validate(this.currentUser)).then(isValid => {
+        // Resolve the promise if validation has passed
+        if (isValid === true) {
+          this.$$afterFlush(deferred.resolve, this.currentUser);
+        }
+        else {
+          return $q.reject(isValid);
+        }
+      }).catch(isValid => {
+        let error;
 
-      let error;
+        if (_.isString(isValid) || isValid instanceof Error) {
+          error = isValid;
+        }
+        else {
+          error = errors.forbidden;
+        }
 
-      if (_.isString(isValid) || isValid instanceof Error) {
-        error = isValid;
-      }
-      else {
-        error = errors.forbidden;
-      }
-
-      return this.$$afterFlush(deferred.reject, error);
+        this.$$afterFlush(deferred.reject, error);
+      });
     });
 
     deferred.promise.stop = computation.stop.bind(computation);
