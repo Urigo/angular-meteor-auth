@@ -1,4 +1,4 @@
-/*! angular-meteor-auth v1.0.3 */
+/*! angular-meteor-auth v1.1.0 */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -84,7 +84,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  };
 
 	  function $$Auth() {
-	    var vm = arguments.length <= 0 || arguments[0] === undefined ? this : arguments[0];
+	    var vm = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this;
 
 	    // Reset auth properties
 	    this.autorun(function () {
@@ -113,6 +113,15 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    var deferred = this.$$defer();
 
+	    // If user is already logged in resolve the promise immediately to prevent an
+	    // unnecessary computation
+	    if (this.currentUser) {
+	      deferred.resolve(this.currentUser);
+	      // Keep the schema of the promise consistent
+	      deferred.promise.stop = angular.noop;
+	      return deferred.promise;
+	    }
+
 	    // Note the promise is being fulfilled in the next event loop to avoid
 	    // nested computations, otherwise the outer computation will cancel the
 	    // inner one once the scope has been destroyed which will lead to subscription
@@ -139,9 +148,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	      return _this.$$afterFlush(deferred.reject, error);
 	    });
 
-	    var promise = deferred.promise;
-	    promise.stop = computation.stop.bind(computation);
-	    return promise;
+	    deferred.promise.stop = computation.stop.bind(computation);
+	    return deferred.promise;
 	  };
 
 	  // Calls a function with the provided args after flush

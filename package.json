@@ -1,7 +1,7 @@
 {
   "name": "angular-meteor-auth",
   "main": "./dist/angular-meteor-auth.js",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "Angular-Meteor authentication module",
   "keywords": [
     "AngularJS",

@@ -36,20 +36,15 @@ var require = meteorInstall({"node_modules":{"meteor":{"angular-meteor-auth":{"d
 //                                                                                                             //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                                                                                                                //
-var _typeof2 = require('babel-runtime/helpers/typeof');                                                        //
-                                                                                                               //
-var _typeof3 = _interopRequireDefault(_typeof2);                                                               //
-                                                                                                               //
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }              //
-                                                                                                               //
+var _typeof;module.import('babel-runtime/helpers/typeof',{"default":function(v){_typeof=v}});                  //
 /*! angular-meteor-auth v1.0.2 */                                                                              //
 (function () {                                                                                                 // 2
 	function webpackUniversalModuleDefinition(root, factory) {                                                    // 2
-		if ((typeof exports === 'undefined' ? 'undefined' : (0, _typeof3['default'])(exports)) === 'object' && (typeof module === 'undefined' ? 'undefined' : (0, _typeof3['default'])(module)) === 'object') module.exports = factory();else if (typeof define === 'function' && define.amd) define([], factory);else if ((typeof exports === 'undefined' ? 'undefined' : (0, _typeof3['default'])(exports)) === 'object') exports["angularMeteorAuth"] = factory();else root["angularMeteorAuth"] = factory();
-	}                                                                                                             //
+		if ((typeof exports === 'undefined' ? 'undefined' : _typeof(exports)) === 'object' && (typeof module === 'undefined' ? 'undefined' : _typeof(module)) === 'object') module.exports = factory();else if (typeof define === 'function' && define.amd) define([], factory);else if ((typeof exports === 'undefined' ? 'undefined' : _typeof(exports)) === 'object') exports["angularMeteorAuth"] = factory();else root["angularMeteorAuth"] = factory();
+	}                                                                                                             // 11
                                                                                                                //
-	return webpackUniversalModuleDefinition;                                                                      //
-})()(this, function () {                                                                                       //
+	return webpackUniversalModuleDefinition;                                                                      // 2
+})()(this, function () {                                                                                       // 2
 	return (/******/function (modules) {                                                                          // 12
 			// webpackBootstrap                                                                                         //
 			/******/ // The module cache                                                                                //
@@ -78,7 +73,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 				/******/ // Return the exports of the module                                                               //
 				/******/return module.exports;                                                                             //
 				/******/                                                                                                   //
-			}                                                                                                           //
+			}                                                                                                           // 38
                                                                                                                //
 			/******/ // expose the modules object (__webpack_modules__)                                                 //
 			/******/__webpack_require__.m = modules;                                                                    //
@@ -92,7 +87,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 			/******/ // Load entry module and return exports                                                            //
 			/******/return __webpack_require__(0);                                                                      //
 			/******/                                                                                                    //
-		}(                                                                                                           //
+		}(                                                                                                           // 52
 		/************************************************************************/                                   //
 		/******/[                                                                                                    //
 		/* 0 */                                                                                                      //
@@ -102,7 +97,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
                                                                                                                //
 			Object.defineProperty(exports, "__esModule", {                                                              // 60
 				value: true                                                                                                // 61
-			});                                                                                                         //
+			});                                                                                                         // 60
 			var name = 'angular-meteor.auth';                                                                           // 63
 			exports['default'] = name;                                                                                  // 64
                                                                                                                //
@@ -113,43 +108,43 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
      This mixin comes in a seperate package called `angular-meteor-auth`. Note that `accounts-base`            //
      package needs to be installed in order for this module to work, otherwise an error will be thrown.        //
     */                                                                                                         //
-			.factory('$$Auth', ['$Mixer', function ($Mixer) {                                                           //
+			.factory('$$Auth', ['$Mixer', function ($Mixer) {                                                           // 67
 				var Accounts = (Package['accounts-base'] || {}).Accounts;                                                  // 75
                                                                                                                //
 				if (!Accounts) {                                                                                           // 77
 					throw Error('`angular-meteor.auth` module requires `accounts-base` package, ' + 'please run `meteor add accounts-base` before use');
-				}                                                                                                          //
+				}                                                                                                          // 79
                                                                                                                //
 				var errors = {                                                                                             // 81
 					required: 'AUTH_REQUIRED',                                                                                // 82
 					forbidden: 'FORBIDDEN'                                                                                    // 83
-				};                                                                                                         //
+				};                                                                                                         // 81
                                                                                                                //
 				function $$Auth() {                                                                                        // 86
 					var vm = arguments.length <= 0 || arguments[0] === undefined ? this : arguments[0];                       // 87
                                                                                                                //
 					// reset auth properties                                                                                  //
-					this.autorun(function () {                                                                                // 86
+					this.autorun(function () {                                                                                // 90
 						vm.currentUser = Accounts.user();                                                                        // 91
 						vm.currentUserId = Accounts.userId();                                                                    // 92
 						vm.isLoggingIn = Accounts.loggingIn();                                                                   // 93
-					});                                                                                                       //
-				}                                                                                                          //
+					});                                                                                                       // 94
+				}                                                                                                          // 95
                                                                                                                //
 				// Waits for user to finish the login process. Gets an optional validation function which                  //
 				// will validate if the current user is valid or not. Returns a promise which will be rejected             //
 				// once login has failed or user is not valid, otherwise it will be resolved with the current              //
 				// user                                                                                                    //
-				$$Auth.$awaitUser = function (validate) {                                                                  // 74
+				$$Auth.$awaitUser = function (validate) {                                                                  // 101
 					var _this = this;                                                                                         // 102
                                                                                                                //
 					validate = validate ? this.$bindToContext($Mixer.caller, validate) : function () {                        // 104
 						return true;                                                                                             // 105
-					};                                                                                                        //
+					};                                                                                                        // 106
                                                                                                                //
 					if (!_.isFunction(validate)) {                                                                            // 108
 						throw Error('argument 1 must be a function');                                                            // 109
-					}                                                                                                         //
+					}                                                                                                         // 110
                                                                                                                //
 					var deferred = this.$$defer();                                                                            // 112
                                                                                                                //
@@ -157,97 +152,97 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 					// nested computations, otherwise the outer computation will cancel the                                   //
 					// inner one once the scope has been destroyed which will lead to subscription                            //
 					// failures. Happens mainly after resolving a route.                                                      //
-					var computation = this.autorun(function (computation) {                                                   // 101
+					var computation = this.autorun(function (computation) {                                                   // 118
 						if (_this.getReactively('isLoggingIn')) return;                                                          // 119
 						// Stop computation once a user has logged in                                                            //
-						computation.stop();                                                                                      // 118
+						computation.stop();                                                                                      // 121
                                                                                                                //
 						if (!_this.currentUser) return _this.$$afterFlush(deferred.reject, errors.required);                     // 123
                                                                                                                //
 						var isValid = validate(_this.currentUser);                                                               // 125
 						// Resolve the promise if validation has passed                                                          //
-						if (isValid === true) return _this.$$afterFlush(deferred.resolve, _this.currentUser);                    // 118
+						if (isValid === true) return _this.$$afterFlush(deferred.resolve, _this.currentUser);                    // 127
                                                                                                                //
 						var error = void 0;                                                                                      // 129
                                                                                                                //
 						if (_.isString(isValid) || isValid instanceof Error) {                                                   // 131
 							error = isValid;                                                                                        // 132
-						} else {                                                                                                 //
+						} else {                                                                                                 // 133
 							error = errors.forbidden;                                                                               // 134
-						}                                                                                                        //
+						}                                                                                                        // 135
                                                                                                                //
 						return _this.$$afterFlush(deferred.reject, error);                                                       // 137
-					});                                                                                                       //
+					});                                                                                                       // 138
                                                                                                                //
 					var promise = deferred.promise;                                                                           // 140
 					promise.stop = computation.stop.bind(computation);                                                        // 141
 					return promise;                                                                                           // 142
-				};                                                                                                         //
+				};                                                                                                         // 143
                                                                                                                //
 				// Calls a function with the provided args after flush                                                     //
-				$$Auth.$$afterFlush = function (fn) {                                                                      // 74
+				$$Auth.$$afterFlush = function (fn) {                                                                      // 146
 					var _fn;                                                                                                  // 147
                                                                                                                //
 					if (_.isString(fn)) {                                                                                     // 149
 						fn = this[fn];                                                                                           // 150
-					}                                                                                                         //
+					}                                                                                                         // 151
                                                                                                                //
 					for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
 						args[_key - 1] = arguments[_key];                                                                        // 154
-					}                                                                                                         //
+					}                                                                                                         // 155
                                                                                                                //
 					return Tracker.afterFlush((_fn = fn).bind.apply(_fn, [this].concat(args)));                               // 157
-				};                                                                                                         //
+				};                                                                                                         // 158
                                                                                                                //
 				// API v0.2.0                                                                                              //
 				// Aliases with small modificatons                                                                         //
                                                                                                                //
 				// No validation                                                                                           //
 				// Silent error                                                                                            //
-				$$Auth.$waitForUser = function () {                                                                        // 74
+				$$Auth.$waitForUser = function () {                                                                        // 165
 					// Silent error                                                                                           //
 					return this.$awaitUser()['catch']();                                                                      // 167
-				};                                                                                                         //
+				};                                                                                                         // 168
                                                                                                                //
 				// No validation                                                                                           //
-				$$Auth.$requireUser = function () {                                                                        // 74
+				$$Auth.$requireUser = function () {                                                                        // 171
 					return this.$awaitUser();                                                                                 // 172
-				};                                                                                                         //
+				};                                                                                                         // 173
                                                                                                                //
 				// Full functionality                                                                                      //
-				$$Auth.$requireValidUser = function () {                                                                   // 74
+				$$Auth.$requireValidUser = function () {                                                                   // 176
 					return this.$awaitUser.apply(this, arguments);                                                            // 177
-				};                                                                                                         //
+				};                                                                                                         // 178
                                                                                                                //
 				return $$Auth;                                                                                             // 180
-			}])                                                                                                         //
+			}])                                                                                                         // 181
                                                                                                                //
 			/*                                                                                                          //
      External service for syntactic sugare.                                                                    //
      Originally created as UI-router's resolve handler.                                                        //
     */                                                                                                         //
-			.service('$auth', ['$rootScope', '$$Auth', function ($rootScope, $$Auth) {                                  //
+			.service('$auth', ['$rootScope', '$$Auth', function ($rootScope, $$Auth) {                                  // 67
 				var _this2 = this;                                                                                         // 188
                                                                                                                //
 				// Note that services are initialized once we call them which means that the mixin                         //
 				// will be available by then                                                                               //
-				_.keys($$Auth).forEach(function (k) {                                                                      // 187
+				_.keys($$Auth).forEach(function (k) {                                                                      // 192
 					var stripped = k.substr(1);                                                                               // 193
 					// Not using bind() so it would be testable                                                               //
-					_this2[stripped] = function () {                                                                          // 192
+					_this2[stripped] = function () {                                                                          // 195
 						return $rootScope[k].apply($rootScope, arguments);                                                       // 196
-					};                                                                                                        //
-				});                                                                                                        //
-			}]).run(['$Mixer', '$$Auth', function ($Mixer, $$Auth) {                                                    //
+					};                                                                                                        // 197
+				});                                                                                                        // 198
+			}]).run(['$Mixer', '$$Auth', function ($Mixer, $$Auth) {                                                    // 199
 				$Mixer.mixin($$Auth);                                                                                      // 200
-			}]);                                                                                                        //
+			}]);                                                                                                        // 201
 			module.exports = exports['default'];                                                                        // 202
                                                                                                                //
 			/***/                                                                                                       //
-		}                                                                                                            //
+		}                                                                                                            // 204
 		/******/])                                                                                                   //
-	);                                                                                                            //
-});                                                                                                            //
+	);                                                                                                            // 12
+});                                                                                                            // 206
 ;                                                                                                              // 207
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
