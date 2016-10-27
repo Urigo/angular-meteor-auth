@@ -193,6 +193,19 @@ describe('angular-meteor.auth', function() {
           scope.$$afterFlush('$$throttledDigest');
         });
       });
+
+      it('should resolve promise immediately if user is already logged in', function(done) {
+        Accounts.login('tempUser').onEnd(function() {
+          var spy = jasmine.createSpy().and.returnValue(true);
+
+          scope.$awaitUser(spy).then(function(user) {
+            expect(user.username).toEqual('tempUser');
+            done()
+          });
+
+          scope.$$throttledDigest();
+        });
+      });
     });
 
     describe('$waitForUser()', function() {
